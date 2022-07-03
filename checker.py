@@ -1,10 +1,12 @@
 import asyncio
+import logging
 from datetime import datetime, timedelta
 from typing import Collection, Optional
 
 from telethon import TelegramClient
 
 from bot_info import BotInfo
+from logger import logger
 
 
 class CheckReport:
@@ -40,16 +42,20 @@ class Checker:
         self.response_time_limit = response_time_limit
 
     async def check_bots(self) -> CheckReport:
+        logger.info("Start checking...")
         report = CheckReport()
 
-        for bot in self.bots:
+        for index, bot in enumerate(self.bots):
+            logger.info(f"{index+1}/{len(self.bots)} Checking {bot.username}...")
             is_online = await self.check_bot(bot)
+
+            logger.info(f"{bot.username} is {'online' if is_online else 'offline'}")
             report[bot.username] = is_online
 
+        logger.info("End checking")
         return report
 
     async def check_bot(self, bot: BotInfo) -> bool:
-        print(f"Checking {bot.username}")
         await self.client.send_message(bot.username, bot.check_command)
         response = await self.get_response(bot)
         return response
@@ -59,9 +65,11 @@ class Checker:
 
         while datetime.utcnow() - start_time < self.response_time_limit:
             messages = await self.client.get_messages(bot.username)
+            logger.debug(f"Got {len(messages)} messages: {messages}")
             response_messages = tuple(filter(lambda m: m.out is False and m.date.timestamp() >= start_time.timestamp(), messages))
 
             if response_messages and (response_messages[0].text == bot.response_message_text or bot.ignore_response_message_text):
+                logger.debug(f"Found response message: {response_messages[0]}")
                 return True
 
             await asyncio.sleep(1)

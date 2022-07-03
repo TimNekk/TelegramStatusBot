@@ -1,9 +1,12 @@
 import asyncio
+import logging
 
+import coloredlogs
 from telethon import TelegramClient
 
 from checker import Checker, CheckReport
 from config import SESSION_NAME, API_ID, API_HASH, BOTS, RESPONSE_TIME_LIMIT, TIME_BETWEEN_CHECKS, USERS_TO_NOTIFY
+from logger import logger
 from notifier import Notifier
 
 
