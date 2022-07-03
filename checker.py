@@ -60,9 +60,8 @@ class Checker:
         while datetime.utcnow() - start_time < self.response_time_limit:
             messages = await self.client.get_messages(bot.username)
 
-            if messages \
-                    and messages[0].message == bot.response_message \
-                    and messages[0].date.timestamp() > start_time.timestamp():
+            if messages and messages[0].date.timestamp() > start_time.timestamp() and \
+                    (bot.ignore_response_message_text or messages[0].text == bot.response_message_text):
                 return True
 
             await asyncio.sleep(1)
