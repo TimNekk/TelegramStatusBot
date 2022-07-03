@@ -55,13 +55,13 @@ class Checker:
         return response
 
     async def get_response(self, bot: BotInfo) -> bool:
-        start_time = datetime.utcnow()
+        start_time = datetime.utcnow().replace(microsecond=0)
 
         while datetime.utcnow() - start_time < self.response_time_limit:
             messages = await self.client.get_messages(bot.username)
+            response_messages = tuple(filter(lambda m: m.out is False and m.date.timestamp() >= start_time.timestamp(), messages))
 
-            if messages and messages[0].date.timestamp() > start_time.timestamp() and \
-                    (bot.ignore_response_message_text or messages[0].text == bot.response_message_text):
+            if response_messages and (response_messages[0].text == bot.response_message_text or bot.ignore_response_message_text):
                 return True
 
             await asyncio.sleep(1)
