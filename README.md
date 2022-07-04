@@ -1,9 +1,10 @@
 # TelegramStatusBot
-Telegram CLI Bot that checks status of other bots
+<img src="preview.png" alt="Preview" align="right" height="400">
 
 ![Tests](https://github.com/TimNekk/TelegramStatusBot/actions/workflows/tests.yml/badge.svg)
 
-![Preview](preview.png)
+Telegram CLI Bot that checks status of other bots
+
 
 
 ## Installation
