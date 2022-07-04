@@ -1,9 +1,9 @@
 import asyncio
-import logging
 from datetime import datetime, timedelta
 from typing import Collection, Optional
 
 from telethon import TelegramClient
+from telethon.tl.types import Message
 
 from bot_info import BotInfo
 from logger import logger
@@ -56,17 +56,17 @@ class Checker:
         return report
 
     async def check_bot(self, bot: BotInfo) -> bool:
-        await self.client.send_message(bot.username, bot.check_command)
-        response = await self.get_response(bot)
+        check_message = await self.client.send_message(bot.username, bot.check_command)
+        response = await self.get_response(bot, check_message)
         return response
 
-    async def get_response(self, bot: BotInfo) -> bool:
-        start_time = datetime.utcnow().replace(microsecond=0)
-
-        while datetime.utcnow() - start_time < self.response_time_limit:
+    async def get_response(self, bot: BotInfo, check_message: Message) -> bool:
+        while datetime.utcnow().timestamp() - check_message.date.timestamp() < self.response_time_limit.total_seconds():
             messages = await self.client.get_messages(bot.username)
             logger.debug(f"Got {len(messages)} messages: {messages}")
-            response_messages = tuple(filter(lambda m: m.out is False and m.date.timestamp() >= start_time.timestamp(), messages))
+            response_messages = tuple(filter(
+                lambda m: m.out is False and m.date.timestamp() >= check_message.date.timestamp(),
+                messages))
 
             if response_messages and (response_messages[0].text == bot.response_message_text or bot.ignore_response_message_text):
                 logger.debug(f"Found response message: {response_messages[0]}")
