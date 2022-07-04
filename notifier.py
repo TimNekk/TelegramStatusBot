@@ -11,7 +11,7 @@ class Notifier:
         self.users_to_notify = users_to_notify
 
     async def notify(self, message: str):
-        logger.info(f"Start notifying...")
+        logger.info("Start notifying...")
         for index, user in enumerate(self.users_to_notify):
             await self.client.send_message(user, message)
             logger.info(f"{index + 1}/{len(self.users_to_notify)} Notified {user}")
