@@ -61,7 +61,8 @@ class Checker:
         return response
 
     async def get_response(self, bot: BotInfo, check_message: Message) -> bool:
-        while datetime.utcnow().timestamp() - check_message.date.timestamp() < self.response_time_limit.total_seconds():
+        while (datetime.utcnow() - check_message.date.replace(tzinfo=None)).total_seconds() < \
+                self.response_time_limit.total_seconds():
             messages = await self.client.get_messages(bot.username)
             logger.debug(f"Got {len(messages)} messages: {messages}")
             response_messages = tuple(filter(
